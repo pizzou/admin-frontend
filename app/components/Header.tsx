@@ -36,11 +36,15 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
     });
 
     useEffect(() => {
-        if (!user && data) {
+        if (data) {
+            const email = data.user?.email ?? "";
+            const name = data.user?.name ?? "";
+            const avatar = data.user?.image ?? "";
+        
             socialAuth({
-                email: data?.user?.email || '', // Fallback to an empty string if undefined
-                name: data?.user?.name || '',
-                avatar: data?.user?.image || '',
+                email,
+                name,
+                avatar,
             });
         }
 
