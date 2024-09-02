@@ -9,15 +9,34 @@ type RegistrationResponse = {
 
 type RegistrationData = {};
 
+type LoginResponse = {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
+type SocialAuthResponse = {
+  accessToken: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
 export const authApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // endpoints here
     register: builder.mutation<RegistrationResponse, RegistrationData>({
       query: (data) => ({
         url: "registration",
         method: "POST",
         body: data,
-        credentials: "include" 
+        // credentials should be handled by fetch configuration
       }),
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
@@ -27,12 +46,12 @@ export const authApi = apiSlice.injectEndpoints({
               token: result.data.activationToken,
             })
           );
-        } catch (error: any) {
-          console.log(error);
+        } catch (error) {
+          console.error('Registration error:', error);
         }
       },
     }),
-    activation: builder.mutation({
+    activation: builder.mutation<void, { activation_token: string; activation_code: string }>({
       query: ({ activation_token, activation_code }) => ({
         url: "activate-user",
         method: "POST",
@@ -42,7 +61,7 @@ export const authApi = apiSlice.injectEndpoints({
         },
       }),
     }),
-    login: builder.mutation({
+    login: builder.mutation<LoginResponse, { email: string; password: string }>({
       query: ({ email, password }) => ({
         url: "login",
         method: "POST",
@@ -50,7 +69,7 @@ export const authApi = apiSlice.injectEndpoints({
           email,
           password,
         },
-        credentials: "include"
+        // credentials should be handled by fetch configuration
       }),
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
@@ -64,12 +83,12 @@ export const authApi = apiSlice.injectEndpoints({
               user: result.data.user,
             })
           );
-        } catch (error: any) {
-          console.log(error);
+        } catch (error) {
+          console.error('Login error:', error);
         }
       },
     }),
-    socialAuth: builder.mutation({
+    socialAuth: builder.mutation<SocialAuthResponse, { email: string; name: string; avatar: string }>({
       query: ({ email, name, avatar }) => ({
         url: "social-auth",
         method: "POST",
@@ -78,14 +97,13 @@ export const authApi = apiSlice.injectEndpoints({
           name,
           avatar,
         },
-        credentials: "include" 
+        // credentials should be handled by fetch configuration
       }),
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
           Cookies.set("accessToken", result.data.accessToken);
           Cookies.set("refreshToken", result.data.refreshToken);
-
           dispatch(
             userLoggedIn({
               accessToken: result.data.accessToken,
@@ -93,22 +111,23 @@ export const authApi = apiSlice.injectEndpoints({
               refreshToken: result.data.refreshToken,
             })
           );
-        } catch (error: any) {
-          console.log(error);
+        } catch (error) {
+          console.error('Social auth error:', error);
         }
       },
     }),
-    logOut: builder.query({
+    logOut: builder.query<void, void>({
       query: () => ({
         url: "logout",
         method: "GET",
-        credentials: "include"
+        // credentials should be handled by fetch configuration
       }),
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
+          await queryFulfilled;
           dispatch(userLoggedOut());
-        } catch (error: any) {
-          console.log(error);
+        } catch (error) {
+          console.error('Logout error:', error);
         }
       },
     }),

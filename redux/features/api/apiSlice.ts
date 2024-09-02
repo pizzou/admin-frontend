@@ -18,20 +18,19 @@ export const apiSlice = createApi({
       }
       return headers;
     },
+    credentials: "include", // Ensure credentials are included in all requests
   }),
   endpoints: (builder) => ({
     refreshToken: builder.query({
-      query: (data) => ({
+      query: () => ({
         url: "refresh",
         method: "GET",
-        credentials: "include" 
       }),
     }),
     loadUser: builder.query({
-      query: (data) => ({
+      query: () => ({
         url: "me",
         method: "GET",
-        credentials: "include" 
       }),
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
@@ -43,7 +42,7 @@ export const apiSlice = createApi({
               user: result.data.user,
             })
           );
-        } catch (error: any) {
+        } catch (error) {
           console.log(error);
         }
       },
