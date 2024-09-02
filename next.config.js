@@ -13,7 +13,7 @@ const nextConfig = {
               // Allow for specific domains to have access or * for all
               {
                 key: "Access-Control-Allow-Origin",
-                value: "https://admin-dashboard-gvbn.onrender.com/api/v1",
+                value: "https://admin-dashboard-gvbn.onrender.com",
                 // DOES NOT WORK
                 // value: process.env.ALLOWED_ORIGIN,
               },
